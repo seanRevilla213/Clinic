@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="Shortcut Icon" type="image/png" href="stmikelogorig.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>St. Michael's Clinic Diagnostic Center</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ================= SIMPLE LOADING SCREEN ================= */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("clinicbgg.png");
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
+            overflow: hidden;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            animation: pulseLogo 2s infinite ease-in-out;
+            z-index: 10;
+        }
+
+        .loading-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 215, 110, 0.3);
+        }
+
+        /* SIMPLE CIRCLE SPINNER */
+        .circle-spinner {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .circle-spinner-inner {
+            width: 100%;
+            height: 100%;
+            border: 5px solid rgba(255, 215, 110, 0.2);
+            border-top: 5px solid #ffd66b;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 18px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 500;
+            z-index: 10;
+        }
+
+        .progress-bar {
+            width: 250px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd66b, #ffb84d);
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        /* ANIMATIONS */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulseLogo {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* ================= MAIN CONTENT STYLING ================= */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        header {
+            background: linear-gradient(135deg,#45484c);
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-right: 10px;
+            border-radius: 8px;
+        }
+
+        .logo span {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+            position: relative;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav ul li a:hover {
+            background: rgba(255, 215, 110, 0.1);
+        }
+
+        nav ul li a.active {
+            background: rgba(255, 215, 110, 0.15);
+            border: 1px solid rgba(255, 215, 110, 0.3);
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .contact-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            min-width: 180px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 1;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: rgba(255, 215, 110, 0.1);
+        }
+
+        /* Image Carousel Styles */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 40px auto;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .carousel {
+            display: flex;
+            transition: transform 0.5s ease;
+            height: 500px;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .carousel-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .carousel-caption h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .carousel-caption p {
+            font-size: 16px;
+            margin-bottom: 0;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #fffbfb;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .carousel-btn:hover {
+            background: #ffd66b;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-btn.prev {
+            left: 20px;
+        }
+
+        .carousel-btn.next {
+            right: 20px;
+        }
+
+        .carousel-btn i {
+            font-size: 20px;
+            color: #0c1a3a;
+        }
+
+        .carousel-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .carousel-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-indicator.active {
+            background: #ffd66b;
+            transform: scale(1.2);
+        }
+
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: #ffd66b, #666;
+            color: #0c1a3a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(255, 215, 110, 0.3);
+        }
+
+        .scroll-to-top.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-to-top:hover {
+            background: #ffb84d;
+            transform: translateY(-3px);
+        }
+
+        /* Main Content Improvements */
+        .hero-section {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #f0f7ff, #e6f2ff);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .hero-section h1 {
+            font-size: 42px;
+            color: #0c1a3a;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero-section p {
+            font-size: 20px;
+            color: #1a3a6c;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .content-section {
+            padding: 40px 0;
+        }
+
+        .section-title {
+            font-size: 32px;
+            color: #0c1a3a;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: #ffd66b;
+            border-radius: 2px;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .service-icon {
+            background: linear-gradient(135deg, #2c2b2a);
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .service-icon i {
+            font-size: 36px;
+            color: #ffd66b
+        }
+
+        .service-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-content h3 {
+            font-size: 22px;
+            color: #0c1a3a;
+            margin-bottom: 15px;
+        }
+
+        .service-content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .service-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: auto;
+        }
+
+        .service-list li {
+            padding: 5px 0;
+            color: #555;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .service-list li:before {
+            content: "•";
+            color: #ffd66b;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        footer {
+            background: linear-gradient(135deg, #45484c);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: #ffd66b;
+        }
+
+        .footer-column p, .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 10px;
+            display: block;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: #ffd66b;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .logo img {
+                width: 40px;
+                height: 40px;
+            }
+
+            .logo span {
+                font-size: 20px;
+            }
+
+            nav ul {
+                margin-top: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            nav ul li {
+                margin: 5px;
+            }
+
+            .loading-logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .circle-spinner {
+                width: 60px;
+                height: 60px;
+            }
+
+            .progress-bar {
+                width: 200px;
+            }
+
+            .loading-text {
+                font-size: 16px;
+            }
+
+            .carousel {
+                height: 350px;
+            }
+
+            .carousel-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .carousel-btn i {
+                font-size: 16px;
+            }
+
+            .hero-section h1 {
+                font-size: 32px;
+            }
+
+            .hero-section p {
+                font-size: 18px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo span {
+                font-size: 18px;
+            }
+
+            .logo img {
+                width: 35px;
+                height: 35px;
+            }
+
+            nav ul li a {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            .loading-logo {
+                width: 80px;
+                height: 80px;
+            }
+
+            .circle-spinner {
+                width: 50px;
+                height: 50px;
+            }
+
+            .progress-bar {
+                width: 180px;
+            }
+
+            .loading-text {
+                font-size: 14px;
+            }
+
+            .carousel {
+                height: 250px;
+            }
+
+            .carousel-caption h3 {
+                font-size: 18px;
+            }
+
+            .carousel-caption p {
+                font-size: 14px;
+            }
+
+            .hero-section h1 {
+                font-size: 28px;
+            }
+
+            .hero-section p {
+                font-size: 16px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Simple Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="circle-spinner">
+            <div class="circle-spinner-inner"></div>
+        </div>
+        
+        <div class="loading-logo">
+            <img src="stmike.png" alt="St. Michael's Medical Center Logo">
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="loadingProgress"></div>
+        </div>
+        
+        <div class="loading-text">Loading our healthcare services...</div>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-to-top" id="scrollToTop">
+        <i class="fas fa-chevron-up"></i>
+    </div>
+
+    <!-- Header with Navigation -->
+    <header id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="stmikelogorig.png" alt="St. Michael's Medical Center Logo">
+                    <span>St. Michael's Medical Center</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="index.html" class="active" aria-current="page"><i class="fas fa-home"></i> Home</a></li>
+                        <li class="dropdown">
+                            <a href="#" class="contact-btn" aria-expanded="false" aria-haspopup="true"><i class="fas fa-bars"></i> Menu <i class="fas fa-caret-down"></i></a>
+                            <div class="dropdown-content">
+                                <a href="Login.html"><i class="fas fa-user-shield"></i> Admin</a>
+                                <a href="walkin.html"><i class="fas fa-calendar-alt"></i> Appointment</a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <h1>Welcome to St. Michael's Medical Center</h1>
+                <p>Providing exceptional healthcare services with compassion, expertise, and state-of-the-art technology for our community.</p>
+            </div>
+        </section>
+
+        <!-- Image Carousel -->
+        <div class="container">
+            <div class="carousel-container">
+                <div class="carousel" id="carousel">
+                    <div class="carousel-slide">
+                        <img src="3.jpg" alt="St. Michael's Medical Center Facility">
+                        <div class="carousel-caption">
+                            <h3>State-of-the-Art Facilities</h3>
+                            <p>Our modern medical center is equipped with the latest technology</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="2.jpg" alt="St. Michael's Medical Center Services">
+                        <div class="carousel-caption">
+                            <h3>Comprehensive Healthcare</h3>
+                            <p>We offer a wide range of medical services for all your needs</p>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="1.jpg" alt="St. Michael's Medical Center Team">
+                        <div class="carousel-caption">
+                            <h3>Expert Medical Team</h3>
+                            <p>Our dedicated professionals are committed to your health and wellbeing</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-btn prev" id="prevBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="carousel-btn next" id="nextBtn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <div class="carousel-indicators" id="indicators">
+                    <div class="carousel-indicator active" data-index="0"></div>
+                    <div class="carousel-indicator" data-index="1"></div>
+                    <div class="carousel-indicator" data-index="2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Section -->
+        <section class="content-section">
+            <div class="container">
+                <h2 class="section-title">Our Services</h2>
+                <div class="services-grid">
+                    <!-- Clinical Microscopy -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Clinical Microscopy</h3>
+                            <p>Comprehensive microscopic analysis for accurate diagnosis</p>
+                                <li>Urinalysis</li>
+                                <li>Fecalysis</li>
+                                <li>Pap Smear</li>
+                                <li>Sputum Examination</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- X-Ray Laboratory -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-x-ray"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>X-Ray Laboratory</h3>
+                            <p>Advanced imaging services for accurate diagnosis</p>
+                            <ul class="service-list">
+                                <li>Chest X-ray</li>
+                                <li>Upper & Lower Extremities</li>
+                                <li>Skull X-ray</li>
+                                <li>Thoracic Cage</li>
+                                <li>Cervical X-ray</li>
+                                <li>Thoraco Lumbar</li>
+                                <li>Lumbosacral</li>
+                                <li>KUB/IVP</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Other Services -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Other Services</h3>
+                            <p>Specialized packages and screenings for comprehensive healthcare</p>
+                                <li>Hypertensive Work-up Package</li>
+                                <li>TB Work-Up Package</li>
+                                <li>Pre-Natal Package</li>
+                                <li>Hepatitis Profile Packages</li>
+                                <li>HIV Screening</li>
+                                <li>Cancer Screening</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Medical Clinic -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Medical Clinic</h3>
+                            <p>Specialized medical care across various disciplines</p>
+                            <ul class="service-list">
+                                <li>Family Medicine</li>
+                                <li>Internal Medicine</li>
+                                <li>Pediatrics</li>
+                                <li>Obstetrics and Gynecology</li>
+                                <li>Ophthalmology</li>
+                                <li>Ear, Nose and Throat-Head and Neck Surgery</li>
+                                <li>General Surgery</li>
+                                <li>Plastic Surgery</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Corporate -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-briefcase-medical"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Corporate</h3>
+                            <p>Comprehensive health services for corporate clients</p>
+                                <li>Pre-Employment Packages</li>
+                                <li>Annual Check-up</li>
+                                <li>Mobile services</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Dental Clinic -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-tooth"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Dental Clinic</h3>
+                            <p>Complete dental care for all ages</p>
+                                <li>Implantology</li>
+                                <li>Endodontic and Periodontic Treatment</li>
+                                <li>Pedodontics (Pediatric Dentistry)</li>
+                                <li>Orthodontics</li>
+                                <li>Prosthodontics</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Ultrasound -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-wave-square"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Ultrasound</h3>
+                            <p>Advanced ultrasound imaging for accurate diagnosis</p>
+                                <li>Upper Abdominal</li>
+                                <li>Lower Abdominal</li>
+                                <li>Pelvic</li>
+                                <li>Transvaginal</li>
+                                <li>KUB</li>
+                                <li>Prostate</li>
+                                <li>Breast Thyroid</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Blood Chemistry -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-vial"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Blood Chemistry</h3>
+                            <p>Comprehensive blood analysis for health assessment</p>
+                            <ul class="service-list">
+                                <li>FBS</li>
+                                <li>BUN</li>
+                                <li>Creatinine</li>
+                                <li>Uric Acid</li>
+                                <li>Total Cholesterol</li>
+                                <li>HDL</li>
+                                <li>LDL</li>
+                                <li>Albumin, Globulin</li>
+                                <li>Potassium, Sodium, etc.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Hematology -->
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Hematology</h3>
+                            <p>Complete blood analysis and cell count services</p>
+                                <li>CBC</li>
+                                <li>Platelet Count</li>
+                                <li>Reticulocyte Count</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+            </div>
+            <div class="copyright">
+                <p></p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Navigation functionality
+            const dropdownToggles = document.querySelectorAll('.contact-btn');
+            dropdownToggles.forEach(toggle => {
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.setAttribute('aria-haspopup', 'true');
+
+                toggle.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+                    toggle.setAttribute('aria-expanded', !isExpanded);
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!toggle.contains(e.target)) {
+                        toggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        toggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            });
+
+            const navLinks = document.querySelectorAll('nav ul li a');
+            const currentPath = window.location.pathname.split('/').pop() || 'index.php';
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                link.removeAttribute('aria-current');
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                    link.setAttribute('aria-current', 'page');
+                }
+            });
+
+            const scrollToTop = document.getElementById('scrollToTop');
+            window.addEventListener('scroll', () => {
+                scrollToTop.classList.toggle('active', window.scrollY > 300);
+            });
+
+            scrollToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Loading screen functionality
+            const loadingScreen = document.getElementById('loadingScreen');
+            const progress = document.getElementById('loadingProgress');
+
+            // Loading progress
+            window.addEventListener('load', () => {
+                let width = 0;
+                const updateProgress = () => {
+                    if (width >= 100) {
+                        loadingScreen.classList.add('hidden');
+                        setTimeout(() => {
+                            loadingScreen.style.display = 'none';
+                        }, 500);
+                    } else {
+                        width += 2;
+                        progress.style.width = `${width}%`;
+                        requestAnimationFrame(updateProgress);
+                    }
+                };
+                requestAnimationFrame(updateProgress);
+            });
+
+            // Image Carousel Functionality
+            const carousel = document.getElementById('carousel');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const indicators = document.getElementById('indicators');
+            const indicatorDots = indicators.querySelectorAll('.carousel-indicator');
+            
+            let currentSlide = 0;
+            const totalSlides = document.querySelectorAll('.carousel-slide').length;
+            let autoSlideInterval;
+            let startX = 0;
+            let endX = 0;
+            
+            // Function to update carousel position
+            function updateCarousel() {
+                carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+                
+                // Update active indicator
+                indicatorDots.forEach((dot, index) => {
+                    if (index === currentSlide) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Next slide function
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateCarousel();
+            }
+            
+            // Previous slide function
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateCarousel();
+            }
+            
+            // Event listeners for buttons
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+            
+            // Event listeners for indicators
+            indicatorDots.forEach(dot => {
+                dot.addEventListener('click', () => {
+                    currentSlide = parseInt(dot.getAttribute('data-index'));
+                    updateCarousel();
+                    resetAutoSlide();
+                });
+            });
+            
+            // Touch/swipe functionality
+            carousel.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+            });
+            
+            carousel.addEventListener('touchmove', (e) => {
+                endX = e.touches[0].clientX;
+            });
+            
+            carousel.addEventListener('touchend', () => {
+                const diff = startX - endX;
+                if (Math.abs(diff) > 50) { // Minimum swipe distance
+                    if (diff > 0) {
+                        nextSlide();
+                    } else {
+                        prevSlide();
+                    }
+                }
+                resetAutoSlide();
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                    resetAutoSlide();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                    resetAutoSlide();
+                }
+            });
+            
+            // Auto slide functionality
+            function startAutoSlide() {
+                autoSlideInterval = setInterval(nextSlide, 5000);
+            }
+            
+            function resetAutoSlide() {
+                clearInterval(autoSlideInterval);
+                startAutoSlide();
+            }
+            
+            // Start auto slide
+            startAutoSlide();
+            
+            // Pause auto slide on hover
+            carousel.addEventListener('mouseenter', () => {
+                clearInterval(autoSlideInterval);
+            });
+            
+            carousel.addEventListener('mouseleave', () => {
+                startAutoSlide();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <link rel="Shortcut Icon" type="image/png" href="stmikelogorig.png">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>St. Michael's Clinic — Admin Login</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap"
+            rel="stylesheet">
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+        /* ===== BASE STYLES ===== */
+        :root {
+            --gold-1: #ffd66b;
+            --gold-2: #ffb84d;
+            --gold-3: #ff9d1a;
+            --muted: #6b7280;
+            --card-bg: #ffffff;
+            --text-dark: #07121a;
+            --panel-radius: 14px;
+            --background: #f8fafc;
+            --error: #dc2626;
+            --success: #16a34a;
+            --warning: #d97706;
+            --border: rgba(2,6,23,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+            background: url('clinicbgg.png') center/cover no-repeat fixed;
+            min-height: 100vh;
+            color: var(--text-dark);
+            overflow: hidden;
+        }
+
+        button { cursor: pointer; }
+        input, select { outline: none; }
+
+        /* ===== LOADING SCREEN ===== */
+        #loading-screen, #redirect-loading-screen {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-image: url("clinicbgg.png");
+            background-position: center;
+            background-size: cover;
+            backdrop-filter: blur(12px);
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        #loading-screen {
+            animation: fadeOut 1s ease-in-out forwards;
+            animation-delay: 3.5s;
+        }
+
+        #redirect-loading-screen {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+
+        #redirect-loading-screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        .logo-wrapper {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            animation: zoomIn 1.4s ease-in-out;
+        }
+
+        @keyframes zoomIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .logo-wrapper img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: contain;
+            z-index: 2;
+            filter: drop-shadow(0 0 12px var(--gold-1)) drop-shadow(0 0 24px var(--gold-1));
+        }
+
+        .dots-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dot {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--gold-1);
+            animation: circleDots 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            transform-origin: 70px 70px;
+            box-shadow: 0 0 8px var(--gold-1);
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.036s; transform: rotate(0deg) translate(60px) rotate(0deg); }
+        .dot:nth-child(2) { animation-delay: -0.072s; transform: rotate(45deg) translate(60px) rotate(-45deg); }
+        .dot:nth-child(3) { animation-delay: -0.108s; transform: rotate(90deg) translate(60px) rotate(-90deg); }
+        .dot:nth-child(4) { animation-delay: -0.144s; transform: rotate(135deg) translate(60px) rotate(-135deg); }
+        .dot:nth-child(5) { animation-delay: -0.18s; transform: rotate(180deg) translate(60px) rotate(-180deg); }
+        .dot:nth-child(6) { animation-delay: -0.216s; transform: rotate(225deg) translate(60px) rotate(-225deg); }
+        .dot:nth-child(7) { animation-delay: -0.252s; transform: rotate(270deg) translate(60px) rotate(-270deg); }
+        .dot:nth-child(8) { animation-delay: -0.288s; transform: rotate(315deg) translate(60px) rotate(-315deg); }
+
+        @keyframes circleDots {
+            0% { opacity: 1; transform: rotate(0deg) translate(60px) rotate(0deg) scale(1); box-shadow: 0 0 8px var(--gold-1); }
+            50% { opacity: 0.5; transform: rotate(180deg) translate(60px) rotate(-180deg) scale(0.7); box-shadow: 0 0 16px var(--gold-1); }
+            100% { opacity: 1; transform: rotate(360deg) translate(60px) rotate(-360deg) scale(1); box-shadow: 0 0 8px var(--gold-1); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 16px;
+            animation: flicker 1.6s infinite;
+            text-align: center;
+            color: var(--gold-1);
+        }
+
+        @keyframes flicker {
+            0% { opacity: 1; text-shadow: 0 0 8px var(--gold-1), 0 0 18px var(--gold-1); }
+            50% { opacity: 0.6; text-shadow: 0 0 20px var(--gold-1), 0 0 32px var(--gold-1); }
+            100% { opacity: 1; text-shadow: 0 0 10px var(--gold-1), 0 0 22px var(--gold-1); }
+        }
+
+        .loading-subtext {
+            margin-top: 10px;
+            font-size: 14px;
+            color: white;
+            text-align: center;
+            max-width: 300px;
+        }
+
+        /* ===== LOGIN PAGE STYLES ===== */
+        #loginPage {
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 28px;
+            opacity: 0;
+            transform: scale(0.96);
+            animation: fadeInZoom 1s ease-in-out forwards;
+            animation-delay: 3.8s;
+            overflow-y: auto;
+        }
+
+        @keyframes fadeInZoom {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .card {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            border-radius: var(--panel-radius);
+            padding: 30px 28px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(2,6,23,0.15);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .brand-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .brand-img {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            object-fit: contain;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-title {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 18px;
+        }
+
+        h2 {
+            color: var(--text-dark);
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        /* Time and Date Display */
+        .time-date-container {
+            background: var(--card-bg);
+            border-radius: var(--panel-radius);
+            padding: 16px 20px;
+            box-shadow: 0 10px 30px rgba(2,6,23,0.06);
+            border: 1px solid rgba(2,6,23,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .date-display {
+            font-size: 14px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-display strong {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .time-display {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-display strong {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        /* Security Features */
+        .security-alert {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            animation: pulseAlert 2s infinite;
+        }
+
+        .security-warning {
+            background: rgba(217, 119, 6, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lockout-timer {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+            display: none;
+        }
+
+        .lockout-timer .timer {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .attempts-counter {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        @keyframes pulseAlert {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Form Controls */
+        .field {
+            margin-bottom: 18px;
+            width: 100%;
+            position: relative;
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 16px;
+            color: var(--muted);
+            z-index: 2;
+            transition: color 0.3s ease;
+        }
+
+        .field input, .field select {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border-radius: 8px;
+            border: 1px solid rgba(2,6,23,0.1);
+            background: #fff;
+            color: var(--text-dark);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .field input::placeholder {
+            color: var(--muted);
+        }
+
+        .field input:focus, .field select:focus {
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 180, 60, 0.1);
+            color: var(--text-dark);
+            border-color: var(--gold-2);
+        }
+
+        .field input:focus + i, .select-wrapper:focus-within i {
+            color: var(--gold-2);
+        }
+
+        .field.error input, .field.error select {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 12px;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 3;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: var(--gold-2);
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--gold-1), var(--gold-2));
+            color: #111;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 180, 60, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #d1d5db;
+            color: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: var(--text-dark);
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-tertiary {
+            background: transparent;
+            color: var(--gold-2);
+            border: 1px solid var(--gold-2);
+        }
+
+        .btn-tertiary:hover {
+            background: rgba(255, 180, 60, 0.1);
+        }
+
+        .links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .link {
+            cursor: pointer;
+            color: var(--gold-2);
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .link:hover {
+            color: var(--gold-3);
+        }
+
+        /* Forms */
+        #forgotPasswordForm, #otpVerificationForm {
+            display: none;
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            border-radius: var(--panel-radius);
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(2,6,23,0.15);
+            position: relative;
+            margin: 20px auto;
+            max-height: 90vh;
+            overflow: hidden;
+        }
+
+        .forgot-password-content, .otp-verification-content {
+            padding: 30px 28px;
+            max-height: calc(90vh - 100px);
+            overflow-y: auto;
+        }
+
+        .form-title {
+            color: var(--text-dark);
+            margin-bottom: 24px;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 20px 28px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            position: sticky;
+            bottom: 0;
+            border-radius: 0 0 var(--panel-radius) var(--panel-radius);
+        }
+
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+            width: 0;
+        }
+
+        .password-strength.weak {
+            background-color: var(--error);
+            width: 25%;
+        }
+
+        .password-strength.medium {
+            background-color: var(--warning);
+            width: 50%;
+        }
+
+        .password-strength.strong {
+            background-color: var(--success);
+            width: 100%;
+        }
+
+        .password-strength-text {
+            font-size: 12px;
+            margin-top: 4px;
+            color: var(--muted);
+        }
+
+        .success-message {
+            background-color: rgba(22, 163, 74, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .security-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 180, 60, 0.1);
+            border: 1px solid var(--gold-2);
+            color: var(--gold-2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* OTP Input Styles */
+        .otp-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .otp-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .otp-input:focus {
+            border-color: var(--gold-2);
+            box-shadow: 0 0 0 3px rgba(255, 180, 60, 0.1);
+        }
+
+        .otp-input.filled {
+            border-color: var(--gold-2);
+            background-color: rgba(255, 180, 60, 0.05);
+        }
+
+        .resend-container {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .resend-link {
+            color: var(--gold-2);
+            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .resend-link:hover:not(.disabled) {
+            color: var(--gold-3);
+        }
+
+        .resend-link.disabled {
+            color: var(--muted);
+            cursor: not-allowed;
+        }
+
+        .timer {
+            font-weight: bold;
+            color: var(--gold-2);
+        }
+
+        .demo-otp-code {
+            background: rgba(255, 180, 60, 0.1);
+            border: 1px solid var(--gold-2);
+            color: var(--gold-2);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            display: none; /* Hidden by default, shown for demo */
+        }
+
+        .back-to-website-row {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        .shake {
+            animation: shake 0.5s ease;
+        }
+    </style>
+    </head>
+    <body>
+
+        <!-- INITIAL LOADING SCREEN -->
+        <div id="loading-screen">
+            <div class="logo-wrapper">
+                <img src="stmike.png" alt="Clinic Logo">
+            </div>
+
+            <div class="dots-container">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <div class="loading-text">Initializing Admin Portal...</div>
+            <div class="loading-subtext">Security protocols enabled • System
+                integrity check in progress</div>
+        </div>
+
+        <!-- REDIRECT LOADING SCREEN -->
+        <div id="redirect-loading-screen">
+            <div class="logo-wrapper">
+                <img src="stmike.png" alt="Clinic Logo">
+            </div>
+
+            <div class="dots-container">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+
+            <div class="loading-text">Redirecting to Website...</div>
+            <div class="loading-subtext">Please wait while we take you to the
+                main website</div>
+        </div>
+
+        <!-- LOGIN PAGE -->
+        <div id="loginPage">
+            <!-- LOGIN FORM -->
+            <div class="card" id="loginCard">
+                <div class="security-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    SECURE LOGIN
+                </div>
+
+                <div class="brand-row">
+                    <img src="stmike.png" alt="Logo" class="brand-img">
+                    <div class="brand-title">St. Michael's Clinic Diagnostic
+                        Center</div>
+                </div>
+
+                <!-- REAL TIME AND DATE DISPLAY -->
+                <div class="time-date-container">
+                    <div class="date-display">
+                        <i class="fas fa-calendar"></i>
+                        Today: <strong id="todayDate"></strong>
+                    </div>
+                    <div class="time-display">
+                        <i class="fas fa-clock"></i>
+                        Time: <strong id="realTime"></strong>
+                    </div>
+                </div>
+
+                <h2>Admin Login</h2>
+
+                <div class="security-alert" id="securityAlert">
+                    <i class="fas fa-shield-alt"></i>
+                    <span id="securityAlertText">Multiple failed login attempts
+                        detected</span>
+                </div>
+
+                <div class="security-warning" id="securityWarning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="securityWarningText">Warning: You have limited
+                        attempts remaining</span>
+                </div>
+
+                <div class="lockout-timer" id="lockoutTimer">
+                    <i class="fas fa-lock"></i>
+                    <div>Account Temporarily Locked</div>
+                    <div class="timer" id="timerDisplay">15:00</div>
+                    <div>Too many failed login attempts. Please try again
+                        later.</div>
+                </div>
+
+                <div class="attempts-counter" id="attemptsCounter">
+                    <i class="fas fa-history"></i>
+                    <span id="attemptsText">Attempts remaining: 5</span>
+                </div>
+
+                <div class="field">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input id="username" placeholder="Username"
+                            autocomplete="username">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input id="password" type="password"
+                            placeholder="Password"
+                            autocomplete="current-password">
+                        <button type="button" class="password-toggle"
+                            id="passwordToggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <button class="btn btn-primary" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </div>
+                <div class="links">
+                    <span class="link" id="forgotLink">
+                        <i class="fas fa-key"></i> Forgot Password?
+                    </span>
+                </div>
+
+                <!-- Back to Website Button -->
+                <div class="back-to-website-row">
+                    <button class="btn btn-tertiary" id="backToWebsiteBtn"
+                        style="width: 100%;">
+                        <i class="fas fa-globe"></i> Back to Main Website
+                    </button>
+                </div>
+            </div>
+
+            <!-- FORGOT PASSWORD FORM -->
+            <div id="forgotPasswordForm">
+                <div class="forgot-password-content">
+                    <div class="brand-row">
+                        <img src="stmike.png" alt="Logo" class="brand-img">
+                        <div class="brand-title">St. Michael's Clinic &
+                            Diagnostic Center</div>
+                    </div>
+
+                    <!-- REAL TIME AND DATE DISPLAY -->
+                    <div class="time-date-container">
+                        <div class="date-display">
+                            <i class="fas fa-calendar"></i>
+                            Today: <strong id="forgotTodayDate"></strong>
+                        </div>
+                        <div class="time-display">
+                            <i class="fas fa-clock"></i>
+                            Time: <strong id="forgotRealTime"></strong>
+                        </div>
+                    </div>
+
+                    <h2 class="form-title">Reset Password</h2>
+
+                    <div class="success-message" id="forgotSuccessMessage">
+                        <i class="fas fa-check-circle"></i> OTP sent to your
+                        phone number!
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="forgotPhone">Phone Number</label>
+                        <div class="field">
+                            <div class="input-group">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="forgotPhone"
+                                    placeholder="Enter your phone number"
+                                    maxlength="14">
+                            </div>
+                            <span class="error-message"
+                                id="forgotPhoneError"></span>
+                            <div class="phone-format-hint"
+                                style="font-size: 12px; color: var(--muted); margin-top: 5px;">
+                                Accepts formats: 09662303810, 9662303810, +63
+                                966 230 3810
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <p
+                            style="font-size: 14px; color: var(--muted); margin-top: 10px;">
+                            Enter your phone number and we'll send you an OTP to
+                            reset your password.
+                        </p>
+                    </div>
+
+                    <!-- Back to Website Button -->
+                    <div class="back-to-website-row">
+                        <button class="btn btn-tertiary"
+                            id="backToWebsiteFromForgot" style="width: 100%;">
+                            <i class="fas fa-globe"></i> Back to Main Website
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-secondary"
+                        id="backToLoginFromForgot">
+                        <i class="fas fa-arrow-left"></i> Back to Login
+                    </button>
+                    <button class="btn btn-primary" id="submitForgotPassword">
+                        <i class="fas fa-paper-plane"></i> Send OTP
+                    </button>
+                </div>
+            </div>
+
+            <!-- OTP VERIFICATION FORM -->
+            <div id="otpVerificationForm">
+                <div class="otp-verification-content">
+                    <div class="brand-row">
+                        <img src="stmike.png" alt="Logo" class="brand-img">
+                        <div class="brand-title">St. Michael's Clinic &
+                            Diagnostic Center</div>
+                    </div>
+
+                    <!-- REAL TIME AND DATE DISPLAY -->
+                    <div class="time-date-container">
+                        <div class="date-display">
+                            <i class="fas fa-calendar"></i>
+                            Today: <strong id="otpTodayDate"></strong>
+                        </div>
+                        <div class="time-display">
+                            <i class="fas fa-clock"></i>
+                            Time: <strong id="otpRealTime"></strong>
+                        </div>
+                    </div>
+
+                    <h2 class="form-title">Verify OTP</h2>
+
+                    <div class="success-message" id="otpSuccessMessage">
+                        <i class="fas fa-check-circle"></i> OTP verified
+                        successfully!
+                    </div>
+
+                    <div class="form-group full-width">
+                        <p
+                            style="font-size: 14px; color: var(--muted); margin-top: 10px; text-align: center;">
+                            We've sent a 6-digit OTP to <strong
+                                id="otpPhoneNumber"></strong>
+                        </p>
+                    </div>
+
+                    <!-- DEMO OTP CODE -->
+                    <div class="demo-otp-code" id="demoOtpContainer">
+                        <i class="fas fa-info-circle"></i> Demo OTP Code: <span
+                            id="demoOtpCode"></span>
+                    </div>
+
+                    <div class="otp-container">
+                        <input type="text" class="otp-input" maxlength="1"
+                            data-index="0">
+                        <input type="text" class="otp-input" maxlength="1"
+                            data-index="1">
+                        <input type="text" class="otp-input" maxlength="1"
+                            data-index="2">
+                        <input type="text" class="otp-input" maxlength="1"
+                            data-index="3">
+                        <input type="text" class="otp-input" maxlength="1"
+                            data-index="4">
+                        <input type="text" class="otp-input" maxlength="1"
+                            data-index="5">
+                    </div>
+
+                    <div class="resend-container">
+                        <span>Didn't receive the code? </span>
+                        <span class="resend-link" id="resendOtp">
+                            Resend OTP <span class="timer"
+                                id="resendTimer">(10s)</span>
+                        </span>
+                    </div>
+
+                    <!-- Back to Website Button -->
+                    <div class="back-to-website-row">
+                        <button class="btn btn-tertiary"
+                            id="backToWebsiteFromOtp" style="width: 100%;">
+                            <i class="fas fa-globe"></i> Back to Main Website
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="backToForgotPassword">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary" id="verifyOtp">
+                        <i class="fas fa-check-circle"></i> Verify OTP
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+// ===== GLOBAL VARIABLES =====
+const SECURITY_CONFIG = {
+    maxAttempts: 5,
+    lockoutTime: 15 * 60 * 1000,
+    warningThreshold: 3,
+    enableCaptcha: true,
+    captchaThreshold: 2
+};
+
+// ===== FIXED STORAGE KEY =====
+const ADMIN_STORAGE = 'stmike_administrators';
+const SESSION_STORAGE = 'stmike_admin_session';
+
+let securityState = {
+    failedAttempts: 0,
+    lockoutUntil: 0,
+    lastAttemptTime: 0,
+    currentCaptcha: '',
+    sessionStart: 0
+};
+
+// ===== OTP VARIABLES =====
+let otpData = {
+    phoneNumber: '',
+    otpCode: '',
+    attempts: 0,
+    resendTimer: null,
+    resendTimeLeft: 10,
+    showDemoOtp: true // Set to false in production
+};
+
+// ===== ENHANCED SECURITY: MULTI-TAB SESSION MANAGEMENT =====
+function checkExistingSession() {
+    try {
+        const session = JSON.parse(localStorage.getItem(SESSION_STORAGE) || '{}');
+        
+        // If user is already logged in and session is valid, redirect to admin
+        if (session.loggedIn && !session.loggedOut && session.expires > Date.now()) {
+            showToast('Welcome back! Redirecting to admin panel...', 'success');
+            setTimeout(() => {
+                window.location.href = 'Admin.html';
+            }, 1500);
+            return true;
+        }
+    } catch (e) {
+        console.error('Error checking session:', e);
+    }
+    
+    return false;
+}
+
+// ===== REAL TIME CLOCK FUNCTION =====
+function updateTime() {
+    try {
+        const now = new Date();
+        
+        // Format date
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = now.toLocaleDateString('en-US', options);
+        
+        // Format time
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let seconds = now.getSeconds();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        
+        const formattedTime = `${hours}:${minutes}:${seconds} ${ampm}`;
+        
+        // Update all time displays
+        const timeElements = document.querySelectorAll('#realTime, #forgotRealTime, #otpRealTime');
+        const dateElements = document.querySelectorAll('#todayDate, #forgotTodayDate, #otpTodayDate');
+        
+        timeElements.forEach(element => {
+            if (element) element.textContent = formattedTime;
+        });
+        
+        dateElements.forEach(element => {
+            if (element) element.textContent = formattedDate;
+        });
+    } catch (e) {
+        console.error('Error updating time:', e);
+    }
+}
+
+// ===== SECURITY FUNCTIONS =====
+function initializeSecurityState() {
+    try {
+        const savedState = localStorage.getItem('stmike_security_state');
+        if (savedState) {
+            const parsed = JSON.parse(savedState);
+            securityState = { ...securityState, ...parsed };
+            
+            if (securityState.lockoutUntil > Date.now()) {
+                enableLockoutMode();
+            } else if (securityState.failedAttempts > 0) {
+                updateSecurityUI();
+            }
+        }
+    } catch (e) {
+        console.error('Failed to load security state:', e);
+        // Reset to default if corrupted
+        securityState = {
+            failedAttempts: 0,
+            lockoutUntil: 0,
+            lastAttemptTime: 0,
+            currentCaptcha: '',
+            sessionStart: Date.now()
+        };
+    }
+    
+    securityState.sessionStart = Date.now();
+}
+
+function saveSecurityState() {
+    try {
+        localStorage.setItem('stmike_security_state', JSON.stringify(securityState));
+    } catch (e) {
+        console.error('Failed to save security state:', e);
+    }
+}
+
+function recordFailedAttempt() {
+    const now = Date.now();
+    
+    if (now - securityState.lastAttemptTime > 3600000) {
+        securityState.failedAttempts = 0;
+    }
+    
+    securityState.failedAttempts++;
+    securityState.lastAttemptTime = now;
+    
+    if (securityState.failedAttempts >= SECURITY_CONFIG.maxAttempts) {
+        securityState.lockoutUntil = now + SECURITY_CONFIG.lockoutTime;
+        enableLockoutMode();
+    }
+    
+    updateSecurityUI();
+    saveSecurityState();
+}
+
+function resetSecurityState() {
+    securityState.failedAttempts = 0;
+    securityState.lockoutUntil = 0;
+    securityState.currentCaptcha = '';
+    hideSecurityAlerts();
+    saveSecurityState();
+}
+
+function updateSecurityUI() {
+    try {
+        const attemptsLeft = SECURITY_CONFIG.maxAttempts - securityState.failedAttempts;
+        
+        if (securityState.failedAttempts > 0) {
+            const attemptsCounter = document.getElementById('attemptsCounter');
+            const attemptsText = document.getElementById('attemptsText');
+            if (attemptsCounter && attemptsText) {
+                attemptsCounter.style.display = 'block';
+                attemptsText.textContent = `Attempts remaining: ${attemptsLeft}`;
+            }
+        }
+        
+        if (securityState.failedAttempts >= SECURITY_CONFIG.warningThreshold) {
+            const securityWarning = document.getElementById('securityWarning');
+            const securityWarningText = document.getElementById('securityWarningText');
+            if (securityWarning && securityWarningText) {
+                securityWarning.style.display = 'flex';
+                securityWarningText.textContent = `Warning: ${attemptsLeft} attempt${attemptsLeft !== 1 ? 's' : ''} remaining`;
+            }
+        }
+        
+        if (securityState.failedAttempts >= 2) {
+            const securityAlert = document.getElementById('securityAlert');
+            if (securityAlert) {
+                securityAlert.style.display = 'flex';
+            }
+        }
+        
+        if (securityState.failedAttempts >= SECURITY_CONFIG.maxAttempts) {
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) loginBtn.disabled = true;
+        }
+    } catch (e) {
+        console.error('Error updating security UI:', e);
+    }
+}
+
+function enableLockoutMode() {
+    try {
+        const lockoutTimer = document.getElementById('lockoutTimer');
+        const loginBtn = document.getElementById('loginBtn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        
+        if (lockoutTimer) lockoutTimer.style.display = 'block';
+        if (loginBtn) loginBtn.disabled = true;
+        if (usernameInput) usernameInput.disabled = true;
+        if (passwordInput) passwordInput.disabled = true;
+        
+        startLockoutTimer();
+    } catch (e) {
+        console.error('Error enabling lockout mode:', e);
+    }
+}
+
+function startLockoutTimer() {
+    const timerElement = document.getElementById('timerDisplay');
+    if (!timerElement) return;
+    
+    const updateTimer = () => {
+        const now = Date.now();
+        const timeLeft = securityState.lockoutUntil - now;
+        
+        if (timeLeft <= 0) {
+            disableLockoutMode();
+            resetSecurityState();
+            return;
+        }
+        
+        const minutes = Math.floor(timeLeft / 60000);
+        const seconds = Math.floor((timeLeft % 60000) / 1000);
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        setTimeout(updateTimer, 1000);
+    };
+    updateTimer();
+}
+
+function disableLockoutMode() {
+    try {
+        const lockoutTimer = document.getElementById('lockoutTimer');
+        const loginBtn = document.getElementById('loginBtn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        
+        if (lockoutTimer) lockoutTimer.style.display = 'none';
+        if (loginBtn) loginBtn.disabled = false;
+        if (usernameInput) usernameInput.disabled = false;
+        if (passwordInput) passwordInput.disabled = false;
+    } catch (e) {
+        console.error('Error disabling lockout mode:', e);
+    }
+}
+
+function hideSecurityAlerts() {
+    try {
+        const elements = [
+            'securityAlert',
+            'securityWarning',
+            'attemptsCounter'
+        ];
+        
+        elements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.style.display = 'none';
+        });
+    } catch (e) {
+        console.error('Error hiding security alerts:', e);
+    }
+}
+
+// ===== PASSWORD FUNCTIONS =====
+function setupPasswordToggle(passwordId, toggleId) {
+    const passwordField = document.getElementById(passwordId);
+    const toggleButton = document.getElementById(toggleId);
+    
+    if (!passwordField || !toggleButton) return;
+    
+    const icon = toggleButton.querySelector('i');
+    
+    toggleButton.addEventListener('click', function() {
+        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordField.setAttribute('type', type);
+        if (icon) {
+            icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        }
+    });
+}
+
+function showError(fieldId, message) {
+    try {
+        const errorElement = document.getElementById(`${fieldId}Error`);
+        if (errorElement) errorElement.textContent = message;
+        
+        const fieldElement = document.getElementById(fieldId);
+        if (fieldElement) {
+            const parent = fieldElement.closest('.field');
+            if (parent) parent.classList.add('error');
+        }
+    } catch (e) {
+        console.error('Error showing error message:', e);
+    }
+}
+
+function hideError(fieldId) {
+    try {
+        const errorElement = document.getElementById(`${fieldId}Error`);
+        if (errorElement) errorElement.textContent = '';
+        
+        const fieldElement = document.getElementById(fieldId);
+        if (fieldElement) {
+            const parent = fieldElement.closest('.field');
+            if (parent) parent.classList.remove('error');
+        }
+    } catch (e) {
+        console.error('Error hiding error message:', e);
+    }
+}
+
+function hideAllErrors() {
+    try {
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(element => {
+            if (element) element.textContent = '';
+        });
+        
+        const fieldElements = document.querySelectorAll('.field.error');
+        fieldElements.forEach(element => {
+            if (element) element.classList.remove('error');
+        });
+    } catch (e) {
+        console.error('Error hiding all errors:', e);
+    }
+}
+
+// ===== FORM NAVIGATION FUNCTIONS =====
+function showLoginForm() {
+    try {
+        document.getElementById('forgotPasswordForm').style.display = 'none';
+        document.getElementById('otpVerificationForm').style.display = 'none';
+        document.getElementById('loginCard').style.display = 'block';
+        hideAllErrors();
+    } catch (e) {
+        console.error('Error showing login form:', e);
+    }
+}
+
+function showForgotPasswordForm() {
+    try {
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('otpVerificationForm').style.display = 'none';
+        document.getElementById('forgotPasswordForm').style.display = 'block';
+        hideAllErrors();
+    } catch (e) {
+        console.error('Error showing forgot password form:', e);
+    }
+}
+
+function showOtpVerificationForm() {
+    try {
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('forgotPasswordForm').style.display = 'none';
+        document.getElementById('otpVerificationForm').style.display = 'block';
+        hideAllErrors();
+    } catch (e) {
+        console.error('Error showing OTP verification form:', e);
+    }
+}
+
+// ===== BACK TO WEBSITE FUNCTION WITH LOADING SCREEN =====
+function goToMainWebsite() {
+    try {
+        // Show redirect loading screen
+        const redirectLoadingScreen = document.getElementById('redirect-loading-screen');
+        if (redirectLoadingScreen) {
+            redirectLoadingScreen.classList.add('active');
+        }
+        
+        showToast('Redirecting to main website...', 'info');
+        
+        // Redirect after 2 seconds
+        setTimeout(() => {
+            window.location.href = 'index.html'; // or your main website URL
+        }, 2000);
+    } catch (e) {
+        console.error('Error redirecting to website:', e);
+        window.location.href = 'index.html';
+    }
+}
+
+// ===== OTP GENERATION FUNCTION =====
+function generateRandomOTP() {
+    // Generate a random 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log(`Generated OTP: ${otp}`); // For debugging only
+    return otp;
+}
+
+// ===== LOGIN PAGE FUNCTIONS =====
+function handleLogin() {
+    try {
+        if (securityState.lockoutUntil > Date.now()) {
+            showToast('Account is temporarily locked. Please try again later.', 'error');
+            return;
+        }
+        
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const card = document.getElementById('loginCard');
+        
+        if (!username) {
+            showError('username', 'Username is required');
+            return;
+        }
+        
+        if (!password) {
+            showError('password', 'Password is required');
+            return;
+        }
+        
+        // Hide any previous errors
+        hideError('username');
+        hideError('password');
+        
+        // Check credentials - FIXED: Check both default admin and stored admins
+        const administrators = JSON.parse(localStorage.getItem(ADMIN_STORAGE)) || [];
+        const foundAdmin = administrators.find(admin => admin.username === username && admin.password === password);
+        
+        // Default admin credentials: username: admin, password: admin123
+        const isDefaultAdmin = (username === 'admin' && password === 'admin123');
+        
+        if (isDefaultAdmin || foundAdmin) {
+            resetSecurityState();
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                const originalText = loginBtn.innerHTML;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                loginBtn.disabled = true;
+            }
+            
+            // Create session for multi-tab synchronization
+            const session = {
+                loggedIn: true,
+                timestamp: Date.now(),
+                expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+                username: username,
+                firstName: foundAdmin ? foundAdmin.firstName : 'Admin',
+                lastName: foundAdmin ? foundAdmin.lastName : 'User',
+                fullName: foundAdmin ? `${foundAdmin.firstName} ${foundAdmin.lastName}` : 'Administrator'
+            };
+            
+            try {
+                localStorage.setItem(SESSION_STORAGE, JSON.stringify(session));
+            } catch (e) {
+                console.error('Error saving session:', e);
+            }
+            
+            setTimeout(() => {
+                showToast('Welcome Admin!', 'success');
+                // Redirect to admin dashboard with user info
+                const redirectUrl = `Admin.html?username=${encodeURIComponent(username)}&firstName=${encodeURIComponent(session.firstName)}`;
+                window.location.href = redirectUrl;
+            }, 1000);
+        } else {
+            recordFailedAttempt();
+            if (card) {
+                card.classList.add('shake');
+                setTimeout(() => {
+                    if (card) card.classList.remove('shake');
+                }, 500);
+            }
+            showError('password', 'Invalid username or password');
+            showToast('Invalid username or password', 'error');
+        }
+    } catch (e) {
+        console.error('Error during login:', e);
+        showToast('An error occurred during login. Please try again.', 'error');
+    }
+}
+
+// ===== FORGOT PASSWORD FUNCTIONS =====
+function handleForgotPassword() {
+    try {
+        const phone = document.getElementById('forgotPhone').value.trim();
+        
+        hideAllErrors();
+        
+        if (!phone) {
+            showError('forgotPhone', 'Phone number is required');
+            return;
+        }
+        
+        // Simplified validation - just check if it's not empty
+        if (!phone) {
+            showError('forgotPhone', 'Please enter a phone number');
+            return;
+        }
+        
+        const submitBtn = document.getElementById('submitForgotPassword');
+        if (!submitBtn) return;
+        
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        submitBtn.disabled = true;
+        
+        setTimeout(() => {
+            // Generate random OTP
+            otpData.phoneNumber = phone; // Store the raw phone number
+            otpData.otpCode = generateRandomOTP();
+            otpData.attempts = 0;
+            
+            // Show success message
+            const successMessage = document.getElementById('forgotSuccessMessage');
+            if (successMessage) {
+                successMessage.style.display = 'flex';
+            }
+            
+            // Update OTP phone display
+            const otpPhoneDisplay = document.getElementById('otpPhoneNumber');
+            if (otpPhoneDisplay) {
+                otpPhoneDisplay.textContent = phone;
+            }
+            
+            // Show demo OTP code (for testing purposes only)
+            if (otpData.showDemoOtp) {
+                const demoOtpCode = document.getElementById('demoOtpCode');
+                const demoOtpContainer = document.getElementById('demoOtpContainer');
+                if (demoOtpCode && demoOtpContainer) {
+                    demoOtpCode.textContent = otpData.otpCode;
+                    demoOtpContainer.style.display = 'block';
+                }
+            }
+            
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            
+            setTimeout(() => {
+                if (successMessage) {
+                    successMessage.style.display = 'none';
+                }
+                showOtpVerificationForm();
+                startResendTimer();
+                clearOtpInputs();
+            }, 1000);
+        }, 1500);
+    } catch (e) {
+        console.error('Error handling forgot password:', e);
+        showToast('An error occurred. Please try again.', 'error');
+    }
+}
+
+// ===== OTP FUNCTIONS =====
+function setupOtpInputs() {
+    const otpInputs = document.querySelectorAll('.otp-input');
+    
+    otpInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const value = this.value;
+            const index = parseInt(this.getAttribute('data-index'));
+            
+            // Only allow numbers
+            if (!/^\d*$/.test(value)) {
+                this.value = '';
+                return;
+            }
+            
+            // Move to next input if current is filled
+            if (value.length === 1 && index < 5) {
+                const nextInput = otpInputs[index + 1];
+                if (nextInput) nextInput.focus();
+            }
+            
+            // Update filled state
+            if (value.length === 1) {
+                this.classList.add('filled');
+            } else {
+                this.classList.remove('filled');
+            }
+        });
+        
+        input.addEventListener('keydown', function(e) {
+            const index = parseInt(this.getAttribute('data-index'));
+            
+            // Move to previous input on backspace if current is empty
+            if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                const prevInput = otpInputs[index - 1];
+                if (prevInput) prevInput.focus();
+            }
+        });
+    });
+}
+
+function getOtpValue() {
+    const otpInputs = document.querySelectorAll('.otp-input');
+    let otp = '';
+    otpInputs.forEach(input => {
+        if (input.value) otp += input.value;
+    });
+    return otp;
+}
+
+function clearOtpInputs() {
+    const otpInputs = document.querySelectorAll('.otp-input');
+    otpInputs.forEach(input => {
+        input.value = '';
+        input.classList.remove('filled');
+    });
+    if (otpInputs[0]) otpInputs[0].focus();
+}
+
+function startResendTimer() {
+    const resendLink = document.getElementById('resendOtp');
+    const timerElement = document.getElementById('resendTimer');
+    
+    if (!resendLink || !timerElement) return;
+    
+    resendLink.classList.add('disabled');
+    otpData.resendTimeLeft = 10;
+    
+    if (otpData.resendTimer) {
+        clearInterval(otpData.resendTimer);
+    }
+    
+    otpData.resendTimer = setInterval(() => {
+        otpData.resendTimeLeft--;
+        timerElement.textContent = `(${otpData.resendTimeLeft}s)`;
+        
+        if (otpData.resendTimeLeft <= 0) {
+            clearInterval(otpData.resendTimer);
+            resendLink.classList.remove('disabled');
+            timerElement.textContent = '';
+        }
+    }, 1000);
+}
+
+function handleResendOtp() {
+    const resendLink = document.getElementById('resendOtp');
+    
+    if (!resendLink || resendLink.classList.contains('disabled')) {
+        return;
+    }
+    
+    // Generate new random OTP
+    otpData.otpCode = generateRandomOTP();
+    otpData.attempts = 0;
+    
+    // Update demo OTP display
+    if (otpData.showDemoOtp) {
+        const demoOtpCode = document.getElementById('demoOtpCode');
+        if (demoOtpCode) {
+            demoOtpCode.textContent = otpData.otpCode;
+        }
+    }
+    
+    showToast('New OTP sent to your phone!', 'success');
+    startResendTimer();
+    clearOtpInputs();
+}
+
+function handleVerifyOtp() {
+    try {
+        const enteredOtp = getOtpValue();
+        
+        if (enteredOtp.length !== 6) {
+            showToast('Please enter the complete 6-digit OTP', 'warning');
+            return;
+        }
+        
+        if (enteredOtp === otpData.otpCode) {
+            // OTP verified successfully
+            const successMessage = document.getElementById('otpSuccessMessage');
+            if (successMessage) {
+                successMessage.style.display = 'flex';
+            }
+            
+            setTimeout(() => {
+                if (successMessage) {
+                    successMessage.style.display = 'none';
+                }
+                showToast('Password reset instructions sent!', 'success');
+                // In a real app, you would redirect to password reset page
+                showLoginForm();
+            }, 1500);
+        } else {
+            otpData.attempts++;
+            if (otpData.attempts >= 3) {
+                showToast('Too many failed attempts. Please request a new OTP.', 'error');
+                handleResendOtp();
+            } else {
+                showToast('Invalid OTP. Please try again.', 'error');
+                clearOtpInputs();
+            }
+        }
+    } catch (e) {
+        console.error('Error verifying OTP:', e);
+        showToast('An error occurred. Please try again.', 'error');
+    }
+}
+
+// ===== MULTI-TAB SESSION SYNC =====
+function setupMultiTabSessionSync() {
+    // Listen for storage changes (other tabs)
+    window.addEventListener('storage', function(e) {
+        if (e.key === SESSION_STORAGE) {
+            try {
+                const sessionData = JSON.parse(e.newValue || '{}');
+                
+                // If another tab logs in, check if we should redirect
+                if (sessionData.loggedIn && !sessionData.loggedOut) {
+                    showToast('Session detected in another tab. Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'Admin.html';
+                    }, 1000);
+                }
+                
+                // If another tab logs out
+                if (sessionData.loggedOut) {
+                    showToast('Logged out from another tab', 'warning');
+                }
+            } catch (e) {
+                console.error('Error handling storage event:', e);
+            }
+        }
+    });
+}
+
+// ===== TOAST FUNCTION =====
+function showToast(msg, type='success', dur=1400) {
+    try {
+        const t = document.createElement('div');
+        t.textContent = msg;
+        
+        // Set color based on type
+        let bgColor = '#fff';
+        let textColor = '#07121a';
+        if (type === 'error') {
+            bgColor = 'var(--error)';
+            textColor = '#fff';
+        } else if (type === 'warning') {
+            bgColor = 'var(--warning)';
+            textColor = '#fff';
+        } else if (type === 'info') {
+            bgColor = 'var(--gold-2)';
+            textColor = '#111';
+        } else if (type === 'success') {
+            bgColor = 'var(--success)';
+            textColor = '#fff';
+        }
+        
+        t.style.cssText = `
+            position: fixed;
+            right: 26px;
+            bottom: 26px;
+            background: ${bgColor};
+            color: ${textColor};
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(2,6,23,0.15);
+            z-index: 99998;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all .32s ease;
+            font-weight: 500;
+            font-size: 14px;
+            max-width: 300px;
+            word-wrap: break-word;
+        `;
+        document.body.appendChild(t);
+        
+        setTimeout(() => {
+            t.style.opacity = '1';
+            t.style.transform = 'translateY(0)';
+        }, 10);
+        
+        setTimeout(() => { 
+            t.style.opacity = '0'; 
+            t.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                if (t.parentNode) {
+                    t.parentNode.removeChild(t);
+                }
+            }, 320);
+        }, dur);
+    } catch (e) {
+        console.error('Error showing toast:', e);
+    }
+}
+
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        // Check if user is already logged in (multi-tab support)
+        if (checkExistingSession()) {
+            return;
+        }
+        
+        initializeSecurityState();
+        setupMultiTabSessionSync();
+        
+        // Start real-time clock
+        updateTime();
+        setInterval(updateTime, 1000);
+        
+        // Setup password toggles for login page
+        setupPasswordToggle('password', 'passwordToggle');
+        
+        // Setup phone input for forgot password
+        const forgotPhoneInput = document.getElementById('forgotPhone');
+        if (forgotPhoneInput) {
+            forgotPhoneInput.addEventListener('input', function() {
+                hideError('forgotPhone');
+            });
+        }
+        
+        // Setup OTP inputs
+        setupOtpInputs();
+        
+        // Event listeners
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', handleLogin);
+        }
+        
+        // Form navigation (LOGIN PAGE)
+        const forgotLink = document.getElementById('forgotLink');
+        if (forgotLink) {
+            forgotLink.addEventListener('click', showForgotPasswordForm);
+        }
+        
+        const backToLoginFromForgot = document.getElementById('backToLoginFromForgot');
+        if (backToLoginFromForgot) {
+            backToLoginFromForgot.addEventListener('click', showLoginForm);
+        }
+        
+        const backToForgotPassword = document.getElementById('backToForgotPassword');
+        if (backToForgotPassword) {
+            backToForgotPassword.addEventListener('click', showForgotPasswordForm);
+        }
+        
+        // Forgot password form
+        const submitForgotPassword = document.getElementById('submitForgotPassword');
+        if (submitForgotPassword) {
+            submitForgotPassword.addEventListener('click', handleForgotPassword);
+        }
+        
+        // OTP verification
+        const resendOtp = document.getElementById('resendOtp');
+        if (resendOtp) {
+            resendOtp.addEventListener('click', handleResendOtp);
+        }
+        
+        const verifyOtp = document.getElementById('verifyOtp');
+        if (verifyOtp) {
+            verifyOtp.addEventListener('click', handleVerifyOtp);
+        }
+        
+        // Back to website buttons
+        const backButtons = [
+            'backToWebsiteBtn',
+            'backToWebsiteFromForgot',
+            'backToWebsiteFromOtp'
+        ];
+        
+        backButtons.forEach(id => {
+            const button = document.getElementById(id);
+            if (button) {
+                button.addEventListener('click', goToMainWebsite);
+            }
+        });
+        
+        // Enter key support for login
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+        }
+        
+        // Enter key support for forgot password phone input
+        const forgotPhone = document.getElementById('forgotPhone');
+        if (forgotPhone) {
+            forgotPhone.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleForgotPassword();
+                }
+            });
+        }
+        
+        // Enter key support for OTP inputs
+        const otpInputs = document.querySelectorAll('.otp-input');
+        otpInputs.forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleVerifyOtp();
+                }
+            });
+        });
+        
+        // Initialize default admin if not exists
+        setTimeout(() => {
+            try {
+                const administrators = JSON.parse(localStorage.getItem(ADMIN_STORAGE)) || [];
+                const defaultAdminExists = administrators.some(admin => admin.username === 'admin');
+                
+                if (!defaultAdminExists) {
+                    administrators.push({
+                        username: 'admin',
+                        password: 'admin123',
+                        firstName: 'Admin',
+                        lastName: 'User',
+                        email: 'admin@stmikesclinic.com',
+                        phone: '+639662303810',
+                        role: 'Super Administrator',
+                        created: new Date().toISOString()
+                    });
+                    localStorage.setItem(ADMIN_STORAGE, JSON.stringify(administrators));
+                    console.log('Default admin account created');
+                }
+            } catch (e) {
+                console.error('Error initializing default admin:', e);
+            }
+        }, 1000);
+        
+    } catch (e) {
+        console.error('Error during initialization:', e);
+        showToast('Error initializing application. Please refresh the page.', 'error');
+    }
+});
+</script>
+    </body>
+</html>

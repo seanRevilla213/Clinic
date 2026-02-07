@@ -2503,7 +2503,7 @@
         </div>
     </div>
 
-    <!-- EDIT UTENSILS MODAL -->
+    <!-- EDIT UTENSILS MODAL - UPDATED (CATEGORIES REMOVED) -->
     <div id="editUtensilsModal" class="edit-utensils-modal">
         <div class="edit-utensils-content">
             <div class="modal-header">
@@ -2522,16 +2522,7 @@
                 <label for="edit_utensil_notes">Notes (Optional)</label>
                 <input id="edit_utensil_notes" type="text" placeholder="Enter any notes">
             </div>
-            <div class="form-group">
-                <label for="edit_utensil_category">Category</label>
-                <select id="edit_utensil_category">
-                    <option value="kitchen">Kitchen</option>
-                    <option value="dining">Dining</option>
-                    <option value="cleaning">Cleaning</option>
-                    <option value="medical">Medical</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
+            <!-- CATEGORY FIELD HAS BEEN REMOVED -->
             <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px">
                 <button class="btn-danger" id="cancelEditUtensil">Cancel</button>
                 <button class="btn-success" id="saveEditUtensil">Save
@@ -3050,7 +3041,6 @@
                         name: currentQuickEditItem.name,
                         qty: newQuantity,
                         threshold: threshold,
-                        category: 'other',
                         notes: 'Added via AI quick restock'
                     });
                 } else {
@@ -5086,7 +5076,6 @@
             document.getElementById('edit_utensil_name').value = utensil.name;
             document.getElementById('edit_utensil_qty').value = utensil.qty;
             document.getElementById('edit_utensil_notes').value = utensil.notes || '';
-            document.getElementById('edit_utensil_category').value = utensil.category || 'kitchen';
 
             document.getElementById('editUtensilsModal').style.display = 'flex';
         }
@@ -5095,7 +5084,6 @@
             const name = document.getElementById('edit_utensil_name').value.trim();
             const qty = Number(document.getElementById('edit_utensil_qty').value || 0);
             const notes = document.getElementById('edit_utensil_notes').value.trim();
-            const category = document.getElementById('edit_utensil_category').value;
 
             if (!name || qty < 0) {
                 showToast('Please fill all fields with valid values', 'error');
@@ -5106,8 +5094,7 @@
                 ...state.utensils[currentEditingUtensilIndex],
                 name,
                 qty,
-                notes,
-                category
+                notes
             };
 
             saveAll();
@@ -5254,7 +5241,7 @@
                 const n = document.getElementById('utensil_name').value.trim();
                 const q = Number(document.getElementById('utensil_qty').value || 0);
                 if (!n || q <= 0) { showToast('Enter valid name & qty', 'error'); return; }
-                state.utensils.push({ name: n, qty: q, notes: '', category: 'kitchen' });
+                state.utensils.push({ name: n, qty: q, notes: '' });
                 saveAll(); renderUtensils(); updateTopStats();
 
                 // Speak confirmation
